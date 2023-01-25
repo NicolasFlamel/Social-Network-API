@@ -1,7 +1,5 @@
 const router = require('express').Router();
-const {
-
-} = require('../../controllers/thoughtController');
+const {} = require('../../controllers/thoughtController');
 
 // /api/thoughts
 router.route('/').get().post();

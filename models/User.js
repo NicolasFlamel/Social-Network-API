@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+var uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new Schema(
   {
@@ -6,10 +7,7 @@ const userSchema = new Schema(
       type: String,
       required: 'Username is required',
       trim: true,
-      index: {
-        unique: true,
-        collation: { locale: 'en', strength: 1 },
-      },
+      unique: true,
     },
     email: {
       type: String,
@@ -32,6 +30,7 @@ const userSchema = new Schema(
   }
 );
 
+userSchema.plugin(uniqueValidator);
 userSchema.virtual('friendCount').get(function () {
   return this.friends.length;
 });
