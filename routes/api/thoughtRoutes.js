@@ -1,13 +1,15 @@
-const { Schema, model } = require('mongoose');
+const router = require('express').Router();
+const {
 
-const thoughtSchema = new Schema({
-  thoughtText: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-});
+} = require('../../controllers/thoughtController');
 
-const Thought = model('thought', thoughtSchema);
+// /api/thoughts
+router.route('/').get().post();
 
-module.exports = Thought;
+// /api/thoughts/:thoughtId
+router.route('/:thoughtId').get().put().delete();
+
+// /api/thoughts/:thoughtId/reactions
+router.route('/:thoughtId/reactions').post().delete();
+
+module.exports = router;
