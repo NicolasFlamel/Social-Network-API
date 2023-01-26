@@ -1,5 +1,4 @@
 const { User, Thought } = require('../models');
-const { ObjectId } = require('mongoose').Types;
 
 // gets all thoughts
 const getThoughts = async (req, res) => {
