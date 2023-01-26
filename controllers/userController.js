@@ -1,12 +1,12 @@
-const { User } = require('../models');
+const { User, Thought } = require('../models');
 const { ObjectId } = require('mongoose').Types;
 
 // gets all user
 const getUsers = async (req, res) => {
   try {
-    const results = await User.find({}).exec();
+    const users = await User.find({}).exec();
 
-    res.json(results);
+    res.json(users);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -15,11 +15,11 @@ const getUsers = async (req, res) => {
 // get single user
 const getSingleUser = async (req, res) => {
   try {
-    const results = await User.find({ _id: req.params.userId })
+    const foundUser = await User.find({ _id: req.params.userId })
       .populate(['friends', 'thoughts'])
       .exec();
 
-    res.json(results);
+    res.json(foundUser);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -30,9 +30,9 @@ const createUser = async (req, res) => {
   const { username, email } = req.body;
 
   try {
-    const results = await User.create({ username, email });
+    const newUser = await User.create({ username, email });
 
-    res.json(results);
+    res.json(newUser);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -41,15 +41,16 @@ const createUser = async (req, res) => {
 // update user
 const updateUser = async (req, res) => {
   try {
-    const results = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       { $set: { ...req.body } },
       { new: true }
     );
 
-    results ? res.json(results) : res.json({ message: 'No user found' });
+    updatedUser
+      ? res.json(updatedUser)
+      : res.json({ message: 'No user found' });
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
@@ -57,9 +58,13 @@ const updateUser = async (req, res) => {
 // delete user
 const deleteUser = async (req, res) => {
   try {
-    const results = await User.deleteOne({ _id: req.params.userId });
+    const deletedUser = await User.findByIdAndDelete(req.params.userId).exec();
 
-    res.json(results);
+    if (deletedUser) {
+      await Thought.deleteMany({ username: deletedUser.username });
+
+      res.json(deletedUser);
+    } else res.json({ message: 'No user deleted' });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -73,7 +78,7 @@ const addFriend = async (req, res) => {
       userId,
       { $addToSet: { friends: friendId } },
       { new: true }
-    );
+    ).exec();
 
     results ? res.json(results) : res.json({ message: 'No user found' });
   } catch (err) {
@@ -89,7 +94,7 @@ const deleteFriend = async (req, res) => {
       userId,
       { $pull: { friends: friendId } },
       { new: true }
-    );
+    ).exec();
 
     res.json(results);
   } catch (err) {
