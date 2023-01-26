@@ -1,5 +1,4 @@
 const connection = require('../config/connection');
-const { ObjectId } = require('mongoose').Types;
 const { Thought, User } = require('../models');
 const { userData, thoughtData } = require('./data');
 
@@ -12,15 +11,15 @@ connection.once('open', async () => {
   await Thought.deleteMany({});
   await User.deleteMany({});
 
-  const users = await User.collection.insertMany(userData);
-  const thoughts = await Thought.collection.insertMany(thoughtData);
+  const users = await User.create(userData);
+  const thoughts = await Thought.create(thoughtData);
 
-  const userIds = Object.keys(users.insertedIds).map((key) =>
-    users.insertedIds[key].toString()
-  );
-  const thoughtIds = Object.keys(thoughts.insertedIds).map((key) =>
-    thoughts.insertedIds[key].toString()
-  );
+  const userIds = users.map((obj) => {
+    return obj._id.toString();
+  });
+  const thoughtIds = thoughts.map((obj) => {
+    return obj._id.toString();
+  });
 
   userIds.forEach((id, i) => {
     const friendPromise = User.updateMany(
