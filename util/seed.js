@@ -1,5 +1,4 @@
 const connection = require('../config/connection');
-const { ObjectId } = require('mongoose').Types;
 const { Thought, User } = require('../models');
 const { userData, thoughtData } = require('./data');
 
@@ -15,11 +14,11 @@ connection.once('open', async () => {
   const users = await User.create(userData);
   const thoughts = await Thought.create(thoughtData);
 
-  const userIds = users.map(obj => {
-    return obj._id.toString()
+  const userIds = users.map((obj) => {
+    return obj._id.toString();
   });
-  const thoughtIds = thoughts.map(obj => {
-    return obj._id.toString()
+  const thoughtIds = thoughts.map((obj) => {
+    return obj._id.toString();
   });
 
   userIds.forEach((id, i) => {
