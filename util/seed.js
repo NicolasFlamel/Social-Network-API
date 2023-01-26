@@ -1,6 +1,6 @@
 const connection = require('../config/connection');
 const { Thought, User } = require('../models');
-const { userData, thoughtData } = require('./data');
+const { userData, thoughtData, reactionData } = require('./data');
 
 connection.on('error', (err) => err);
 
@@ -30,7 +30,12 @@ connection.once('open', async () => {
       { _id: id },
       { $addToSet: { thoughts: thoughtIds[i] } }
     );
-    promises.push(friendPromise, thoughtPromise);
+    const reactionPromise = Thought.findByIdAndUpdate(
+      thoughtIds[i],
+      { $addToSet: { reactions: reactionData[i] } },
+      { new: true }
+    );
+    promises.push(friendPromise, thoughtPromise, reactionPromise);
   });
 
   await Promise.all(promises);
