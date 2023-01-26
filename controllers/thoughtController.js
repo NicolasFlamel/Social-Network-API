@@ -1,65 +1,105 @@
-const { Thought } = require('../models');
+const { User, Thought } = require('../models');
 const { ObjectId } = require('mongoose').Types;
 
 // gets all thoughts
-const getThoughts = (req, res) => {
-  Thought.find({}, '-__v', (err, results) =>
-    err ? res.status(500).json(err) : res.json(results)
-  );
+const getThoughts = async (req, res) => {
+  try {
+    const thoughts = await Thought.find({});
+
+    res.json(thoughts);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // get single thought
-const getSingleThought = (req, res) => {
-  Thought.findOne({ _id: req.params.userId }, '-__v', (err, results) =>
-    err ? res.status(500).json(err) : res.json(results)
-  );
+const getSingleThought = async (req, res) => {
+  try {
+    const foundThought = await Thought.findOne({ _id: req.params.thoughtId });
+
+    res.json(foundThought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // create thought
-const createThought = (req, res) => {
-  const { username, email } = req.body;
-  Thought.create({ username, email }, (err, results) =>
-    err ? res.status(500).json(err) : res.json(results)
-  );
+const createThought = async (req, res) => {
+  const { thoughtText, username, userId } = req.body;
+  try {
+    const newThought = await Thought.create({ thoughtText, username });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { thoughts: newThought._id } },
+      { new: true }
+    );
+
+    res.json({ newThought, updatedUser });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // update thought
-const updateThought = (req, res) => {
-  Thought.findByIdAndUpdate(
-    req.params.userId,
-    { $set: { ...req.body } },
-    { new: true },
-    (err, results) => (err ? res.status(500).json(err) : res.json(results))
-  );
+const updateThought = async (req, res) => {
+  try {
+    const updatedThought = await Thought.findByIdAndUpdate(
+      req.params.thoughtId,
+      { $set: { ...req.body } },
+      { new: true }
+    );
+
+    res.json(updatedThought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // delete thought
-const deleteThought = (req, res) => {
-  Thought.deleteOne({ _id: req.params.userId }, (err, results) =>
-    err ? res.status(500).json(err) : res.json(results)
-  );
+const deleteThought = async (req, res) => {
+  try {
+    const deletedThought = await Thought.deleteOne({
+      _id: req.params.thoughtId,
+    });
+
+    res.json(deletedThought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // add friend id to thought
-const addReaction = (req, res) => {
-  const { userId, friendId } = req.params;
-  Thought.findByIdAndUpdate(
-    userId,
-    { $addToSet: { friends: friendId } },
-    { new: true },
-    (err, results) => (err ? res.status(500).json(err) : res.json(results))
-  );
+const addReaction = async (req, res) => {
+  const { thoughtId } = req.params;
+  const { reactionBody, username } = req.body;
+  try {
+    const updatedThought = await Thought.findByIdAndUpdate(
+      thoughtId,
+      { $addToSet: { reactions: { username, reactionBody } } },
+      { new: true }
+    );
+
+    res.json(updatedThought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // delete friend id from thought
-const deleteReaction = (req, res) => {
-  const { userId, friendId } = req.params;
-  Thought.findByIdAndUpdate(
-    userId,
-    { $pull: { friends: friendId } },
-    { new: true },
-    (err, results) => (err ? res.status(500).json(err) : res.json(results))
-  );
+const deleteReaction = async (req, res) => {
+  const { thoughtId } = req.params;
+  const { reactionId } = req.body;
+  try {
+    const updatedThought = await Thought.findByIdAndUpdate(
+      thoughtId,
+      { $pull: { reactions: { reactionId } } },
+      { new: true }
+    );
+
+    res.json(updatedThought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 module.exports = {
