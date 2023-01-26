@@ -4,9 +4,9 @@ const { ObjectId } = require('mongoose').Types;
 // gets all user
 const getUsers = async (req, res) => {
   try {
-    const results = await User.find({}).exec();
+    const users = await User.find({}).exec();
 
-    res.json(results);
+    res.json(users);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -15,11 +15,11 @@ const getUsers = async (req, res) => {
 // get single user
 const getSingleUser = async (req, res) => {
   try {
-    const results = await User.find({ _id: req.params.userId })
+    const foundUser = await User.find({ _id: req.params.userId })
       .populate(['friends', 'thoughts'])
       .exec();
 
-    res.json(results);
+    res.json(foundUser);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -30,9 +30,9 @@ const createUser = async (req, res) => {
   const { username, email } = req.body;
 
   try {
-    const results = await User.create({ username, email });
+    const createdUser = await User.create({ username, email });
 
-    res.json(results);
+    res.json(createdUser);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -41,13 +41,13 @@ const createUser = async (req, res) => {
 // update user
 const updateUser = async (req, res) => {
   try {
-    const results = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       { $set: { ...req.body } },
       { new: true }
     );
 
-    results ? res.json(results) : res.json({ message: 'No user found' });
+    updatedUser ? res.json(updatedUser) : res.json({ message: 'No user found' });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -57,9 +57,9 @@ const updateUser = async (req, res) => {
 // delete user
 const deleteUser = async (req, res) => {
   try {
-    const results = await User.deleteOne({ _id: req.params.userId });
+    const deletedUser = await User.deleteOne({ _id: req.params.userId });
 
-    res.json(results);
+    res.json(deletedUser);
   } catch (err) {
     res.status(500).json(err);
   }
