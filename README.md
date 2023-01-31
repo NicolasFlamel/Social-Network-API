@@ -8,7 +8,7 @@ This project is about creating an API for a social network web application where
 
 - Have Nodejs installed (I used v16.18)
 - Install npm dependencies
-    - use 'npm install' on terminal once navigated to folder
+  - use 'npm install' on terminal once navigated to folder
 - Have mongoDB installed
 
 ## Usage
