@@ -12,7 +12,7 @@ const thoughtSchema = new Schema(
     },
     createdAt: {
       type: Date,
-      default: Date.now(),
+      default: new Date,
       get: (date) => date.toLocaleString(),
     },
     username: {
@@ -24,6 +24,7 @@ const thoughtSchema = new Schema(
   {
     toJSON: {
       virtuals: true,
+      getters: true,
     },
     id: false,
   }
